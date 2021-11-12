@@ -1,25 +1,66 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { BlocksSvg } from "./comps/BlocksSvg";
+import Controls from "./controls/Controls";
+import { createBlockCanvas, drawCanvas, getBlockData } from "./utils/utils";
 
-function App() {
+const App = () => {
+  const [params, setParams] = useState({});
+  const [sourceImg, setSourceImg] = useState(null);
+  const [blockData, setBlockData] = useState(null);
+
+  const canvasRef = React.useRef(null);
+
+  // LOAD IMAGE
+  useEffect(() => {
+    if (!sourceImg) {
+      const image = new Image();
+      image.crossOrigin = "Anonymous";
+      image.onload = () => setSourceImg(image);
+      image.src = "shauna-coxsey-no-bg.png";
+    }
+  }, [sourceImg]);
+
+  // CREATE BLOCK DATA
+  // DRAW CANVAS
+  useEffect(() => {
+    if (!sourceImg) return;
+    const blocks = getBlockData({ sourceImg, ...params });
+    setBlockData(blocks);
+  }, [sourceImg, params]);
+
+  // DRAW CANVAS
+  useEffect(() => {
+    if (!blockData) return;
+
+    const blockCanvas = createBlockCanvas(blockData, params.blockSize);
+
+    const ctx = canvasRef.current.getContext("2d");
+    canvasRef.current.width = blockCanvas.width;
+    canvasRef.current.height = blockCanvas.height;
+    drawCanvas(ctx, blockCanvas);
+  }, [blockData, params.blockSize]);
+
+  const onDownloadPack = () => {
+    console.log("DOWNLOAD NOW!!!!!!");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Controls
+        onChange={(newParams) => setParams(newParams)}
+        onDownloadPack={() => onDownloadPack()}
+      />
+
+      <h4>SVG</h4>
+      <BlocksSvg {...params} blockData={blockData} />
+      <h4>CANVAS</h4>
+      <canvas
+        ref={canvasRef}
+        width={window.innerWidth}
+        height={window.innerHeight}
+      />
     </div>
   );
-}
+};
 
 export default App;
