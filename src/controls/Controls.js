@@ -7,9 +7,14 @@ import {
   NumberParam,
 } from "use-query-params";
 
+//http://localhost:3000/?blockSize=7&brightnessAdjust=0&contrast=0&cropBottom=0.75&cropLeft=0.32&cropRight=0.8&cropTop=0&pixelsWide=84&sharpAdjust=0&sharpnessAdjust=0&showInfo=0
+
+//http://localhost:3000/?blockSize=7&brightnessAdjust=0&contrast=0&cropBottom=0.75&cropLeft=0.32&cropRight=0.8&cropTop=0&pixelsWide=119&sharpAdjust=0&sharpnessAdjust=0&showAsOutlines=0&showInfo=0
+
 export default function Controls({ showControls = true, onChange }) {
   const [query, setQuery] = useQueryParams({
     showInfo: BooleanParam,
+    showAsOutlines: BooleanParam,
     sharpAdjust: NumberParam,
     blockSize: NumberParam,
     pixelsWide: NumberParam,
@@ -24,6 +29,10 @@ export default function Controls({ showControls = true, onChange }) {
       showInfo: {
         value: false,
         onChange: (value) => setQuery({ showInfo: value }),
+      },
+      showAsOutlines: {
+        value: false,
+        onChange: (value) => setQuery({ showAsOutlines: value }),
       },
     }),
     sizes: folder(

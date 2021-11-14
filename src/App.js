@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { BlocksSvg } from "./comps/BlocksSvg";
+import { BlocksSvg } from "./comps/blocksSvg/BlocksSvg";
+import CardPdf from "./comps/cardPdf/CardPdf";
 import Controls from "./controls/Controls";
-import { createBlockCanvas, drawCanvas, getBlockData } from "./utils/utils";
+import { createBlockCanvas, getBlockData } from "./utils/svgMakerUtils";
+import { drawCanvas } from "./utils/utils";
 
 const App = () => {
   const [params, setParams] = useState({});
@@ -51,8 +53,11 @@ const App = () => {
         onDownloadPack={() => onDownloadPack()}
       />
 
+      <CardPdf blockData={blockData} {...params} />
+
       <h4>SVG</h4>
-      <BlocksSvg {...params} blockData={blockData} />
+      <BlocksSvg blockData={blockData} {...params} />
+
       <h4>CANVAS</h4>
       <canvas
         ref={canvasRef}

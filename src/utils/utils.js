@@ -1,3 +1,55 @@
+const DEFAULT_CROP_VALUES = {
+  leftPercent: 0,
+  rightPercent: 1,
+  topPercent: 0,
+  bottomPercent: 1,
+};
+
+export const createCroppedCanvas = (
+  sourceCanvas,
+  cropData,
+  backgroundColour = "red"
+) => {
+  // if there's no cropping just return the sourceCanvas unchanged
+  if (!cropData || cropData === DEFAULT_CROP_VALUES) {
+    return sourceCanvas;
+  }
+
+  const { top, right, bottom, left } = cropData;
+  const { width: sourceWidth, height: sourceHeight } = sourceCanvas;
+
+  const outputCanvas = document.createElement("canvas");
+
+  const leftCrop = sourceWidth * left;
+  const rightCrop = sourceWidth * (1 - right);
+  const topCrop = sourceHeight * top;
+  const bottomCrop = sourceHeight * (1 - bottom);
+  let croppedWidth = sourceCanvas.width - (leftCrop + rightCrop);
+  let croppedHeight = sourceCanvas.height - (topCrop + bottomCrop);
+
+  outputCanvas.width = croppedWidth;
+  outputCanvas.height = croppedHeight;
+
+  const ctx = outputCanvas.getContext("2d");
+
+  ctx.fillStyle = backgroundColour;
+  ctx.clearRect(0, 0, croppedWidth, croppedHeight);
+
+  ctx.drawImage(
+    sourceCanvas,
+    leftCrop,
+    topCrop,
+    croppedWidth,
+    croppedHeight,
+    0,
+    0,
+    croppedWidth,
+    croppedHeight
+  );
+
+  return outputCanvas;
+};
+
 export const createSmallCanvas = (source, maxWidth, maxHeight) => {
   const sourceW = source.width;
   const sourceH = source.height;
@@ -25,77 +77,6 @@ export const createSmallCanvas = (source, maxWidth, maxHeight) => {
   ctx.drawImage(source, 0, 0, sourceW, sourceH, 0, 0, targetW, targetH);
 
   return smallCanvas;
-};
-
-export const getBlockData = ({ sourceImg, pixelsWide, sharpAdjust }) => {
-  const smallCanvas = createSmallCanvas(sourceImg, pixelsWide);
-  const sharpCanvas =
-    sharpAdjust > 0
-      ? createSharperCanvas(smallCanvas, sharpAdjust)
-      : smallCanvas;
-
-  const { width: inputW, height: inputH } = sharpCanvas;
-
-  const inputCtx = sharpCanvas.getContext("2d");
-  let imgData = inputCtx.getImageData(0, 0, inputW, inputH);
-  let pixels = imgData.data;
-  const blocks = [];
-
-  let r, g, b, a, brightness;
-  let row = [];
-
-  for (let y = 0; y < inputH; y++) {
-    for (let x = 0; x < inputW; x++) {
-      const i = (y * inputW + x) * 4;
-
-      r = pixels[i];
-      g = pixels[i + 1];
-      b = pixels[i + 2];
-      a = pixels[i + 3];
-
-      let alpha = 255;
-
-      let fraction = brightness / 255;
-      brightness = r * 0.2126 + g * 0.7152 + b * 0.0722;
-      if (a < 255) {
-        brightness = 0;
-        alpha = 0;
-        fraction = 0;
-      }
-
-      row.push({ brightness, x, y, alpha, fraction });
-    }
-
-    blocks.push(row);
-    row = [];
-  }
-
-  return blocks;
-};
-
-export const createBlockCanvas = (blockData, blockSize = 7) => {
-  const outputCanvas = document.createElement("canvas");
-  const totalRows = blockData.length;
-  const totalCols = blockData[0].length;
-  outputCanvas.width = totalCols * blockSize;
-  outputCanvas.height = totalRows * blockSize;
-  const outputCtx = outputCanvas.getContext("2d");
-
-  for (let y = 0; y < totalRows; y++) {
-    for (let x = 0; x < totalCols; x++) {
-      const block = blockData[y][x];
-
-      const { brightness, alpha } = block;
-
-      const xPos = block.x * blockSize;
-      const yPos = block.y * blockSize;
-
-      outputCtx.fillStyle = `rgba(${brightness},${brightness},${brightness}, ${alpha})`;
-      outputCtx.fillRect(xPos, yPos, blockSize, blockSize);
-    }
-  }
-
-  return outputCanvas;
 };
 
 export const drawCanvas = (ctx, source) => {
