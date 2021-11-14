@@ -65,10 +65,6 @@ export const getBlockData = ({
 };
 
 export const getSheetData = ({ blockData, blockSize }) => {
-  // block data is an array rows
-  // turn this array into a set of arrays for each sheet
-  // ? how many cols and rows in a sheet
-
   const sheetHeight = 210;
   const sheetWidth = 148;
   const rowsInSheet = Math.floor(sheetHeight / blockSize);
@@ -77,47 +73,77 @@ export const getSheetData = ({ blockData, blockSize }) => {
   const totalRows = blockData.length;
   const totalCols = blockData[0].length;
 
-  //   const sheetsAcross = Math.ceil(totalCols / colsInSheet);
-  //   const sheetsDown = Math.ceil(totalRows / rowsInSheet);
+  const sheetsAcross = Math.ceil(totalCols / colsInSheet);
+  const sheetsDown = Math.ceil(totalRows / rowsInSheet);
 
-  const sheetData = [];
-  const sheetBlockData = new Array(rowsInSheet);
+  const sheetData = getSheetMetaData({
+    rowsInSheet,
+    colsInSheet,
+    sheetsAcross,
+    sheetsDown,
+  });
 
-  for (let sr = 0; sr < sheetBlockData.length; sr++) {
-    sheetBlockData[sr] = new Array(colsInSheet);
-  }
-
-  const sheet1 = {
-    startRow: 0,
-    endRow: 0 + rowsInSheet - 1,
-    startCol: 0,
-    endCol: colsInSheet - 1,
-    sheetBlockData,
-  };
-  sheetData.push(sheet1);
+  console.log("sheetData: ", sheetData);
 
   for (let r = 0; r < totalRows; r++) {
     for (let c = 0; c < totalCols; c++) {
-      if (
-        r >= sheet1.startRow &&
-        r <= sheet1.endRow &&
-        c >= sheet1.startCol &&
-        c <= sheet1.endCol
-      ) {
-        const sheetRow = r - sheet1.startRow;
-        const sheetCol = c - sheet1.startCol;
+      // find
 
-        sheet1.sheetBlockData[sheetRow][sheetCol] = blockData[r][c];
+      if (
+        r >= sheetData[0].startRow &&
+        r <= sheetData[0].endRow &&
+        c >= sheetData[0].startCol &&
+        c <= sheetData[0].endCol
+      ) {
+        const sheetRow = r - sheetData[0].startRow;
+        const sheetCol = c - sheetData[0].startCol;
+
+        sheetData[0].sheetBlockData[sheetRow][sheetCol] = blockData[r][c];
 
         // if it's the last one add the next cell to know where to end the line
-        if (c === sheet1.endCol) {
+        if (c === sheetData[0].endCol) {
           //
           if (c + 1 < totalCols) {
-            sheet1.sheetBlockData[sheetRow][sheetCol].endCellConnection =
+            sheetData[0].sheetBlockData[sheetRow][sheetCol].endCellConnection =
               blockData[r][c + 1];
           }
         }
       }
+    }
+  }
+
+  return sheetData;
+};
+
+const getSheetMetaData = ({
+  rowsInSheet,
+  colsInSheet,
+  sheetsAcross,
+  sheetsDown,
+}) => {
+  const sheetData = [];
+
+  for (let sr = 0; sr < sheetsDown; sr++) {
+    for (let sc = 0; sc < sheetsAcross; sc++) {
+      const sheetBlockData = new Array(rowsInSheet);
+
+      for (let sr = 0; sr < sheetBlockData.length; sr++) {
+        sheetBlockData[sr] = new Array(colsInSheet);
+      }
+
+      const startRow = sr * rowsInSheet;
+      const endRow = startRow + rowsInSheet - 1;
+      const startCol = sc * colsInSheet;
+      const endCol = startCol + colsInSheet - 1;
+
+      const sheet = {
+        startRow,
+        endRow,
+        startCol,
+        endCol,
+        sheetBlockData,
+      };
+      sheetData.push(sheet);
     }
   }
 
