@@ -8,43 +8,44 @@ export default function CardPdf({ blockData, blockSize, showAsOutlines }) {
   if (!blockData) return null;
 
   const sheetData = getSheetData({ blockData, blockSize });
+  const pagePaths = [];
 
-  const sheet1 = sheetData[0];
-  const { sheetBlockData } = sheet1;
-  console.log("sheet1 > sheetBlockData: ", sheetBlockData);
-  // console.log("sheetData: ", sheetData);
+  for (let sheet of sheetData) {
+    const paths = getPaths({ blockData: sheet.sheetBlockData, blockSize });
+    pagePaths.push(paths);
+  }
 
-  const paths = getPaths({ blockData: sheetBlockData, blockSize });
-
-  const totalRows = sheetBlockData.length;
-  let hueIncrement = 360 / totalRows;
-  const fill = showAsOutlines ? "none" : "black";
+  // const totalRows = 10;
+  // let hueIncrement = 360 / totalRows;
+  const fill = showAsOutlines ? "#ccc" : "black";
 
   return (
     <div className={styles.cardPdf}>
       <PDFViewer>
         <Document title="Mountains Portrait Cards">
-          <Page size="A5">
-            <Svg
-              viewBox={`0, 0, 148, 210`}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              {paths.map((p, i) => (
-                <Path
-                  key={i}
-                  d={p}
-                  fill={fill}
-                  // fill={`hsl(${i * hueIncrement}, 100%, 30%)`}
-                  strokeWidth={0.5}
-                  stroke={`hsl(${i * hueIncrement}, 100%, 30%)`}
-                  // stroke="none"
-                />
-              ))}
-            </Svg>
-          </Page>
+          {pagePaths.map((page, pIndex) => (
+            <Page size="A5" key={`p-${pIndex}`}>
+              <Svg
+                viewBox={`0, 0, 148, 210`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                {page.map((p, i) => (
+                  <Path
+                    key={i}
+                    d={p}
+                    fill={fill}
+                    // fill={`hsl(${i * hueIncrement}, 100%, 30%)`}
+                    strokeWidth={0.2}
+                    // stroke={`hsl(${i * hueIncrement}, 100%, 30%)`}
+                    stroke="#ccc"
+                  />
+                ))}
+              </Svg>
+            </Page>
+          ))}
         </Document>
       </PDFViewer>
     </div>

@@ -50,23 +50,23 @@ export const getPaths = ({ blockData, blockSize }) => {
     for (let c = 0; c < totalCols; c++) {
       const cell = row[c];
 
-      // trace out errors
-      if (!cell) {
-        console.log("bad cell: ", cell);
-      }
-
       xPos = c * blockSize;
       yBottom = blockSize + r * blockSize;
       const isLastColumn = c === totalCols - 1;
 
-      yPos = getYPosFromCell({
-        cell,
-        minHeight,
-        maxHeight,
-        yBottom,
-        isLastColumn,
-      });
-
+      // trace out errors
+      if (!cell) {
+        console.log("bad cell: ", cell);
+        yPos = yBottom;
+      } else {
+        yPos = getYPosFromCell({
+          cell,
+          minHeight,
+          maxHeight,
+          yBottom,
+          isLastColumn,
+        });
+      }
       path += `L ${xPos} ${yPos}`;
     }
 

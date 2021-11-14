@@ -76,36 +76,36 @@ export const getSheetData = ({ blockData, blockSize }) => {
   const sheetsAcross = Math.ceil(totalCols / colsInSheet);
   const sheetsDown = Math.ceil(totalRows / rowsInSheet);
 
-  const sheetData = getSheetMetaData({
+  const sheetData = createBaseSheetData({
     rowsInSheet,
     colsInSheet,
     sheetsAcross,
     sheetsDown,
   });
 
-  console.log("sheetData: ", sheetData);
-
   for (let r = 0; r < totalRows; r++) {
     for (let c = 0; c < totalCols; c++) {
       // find
 
-      if (
-        r >= sheetData[0].startRow &&
-        r <= sheetData[0].endRow &&
-        c >= sheetData[0].startCol &&
-        c <= sheetData[0].endCol
-      ) {
-        const sheetRow = r - sheetData[0].startRow;
-        const sheetCol = c - sheetData[0].startCol;
+      for (let sheet of sheetData) {
+        if (
+          r >= sheet.startRow &&
+          r <= sheet.endRow &&
+          c >= sheet.startCol &&
+          c <= sheet.endCol
+        ) {
+          const sheetRow = r - sheet.startRow;
+          const sheetCol = c - sheet.startCol;
 
-        sheetData[0].sheetBlockData[sheetRow][sheetCol] = blockData[r][c];
+          sheet.sheetBlockData[sheetRow][sheetCol] = blockData[r][c];
 
-        // if it's the last one add the next cell to know where to end the line
-        if (c === sheetData[0].endCol) {
-          //
-          if (c + 1 < totalCols) {
-            sheetData[0].sheetBlockData[sheetRow][sheetCol].endCellConnection =
-              blockData[r][c + 1];
+          // if it's the last one add the next cell to know where to end the line
+          if (c === sheet.endCol) {
+            //
+            if (c + 1 < totalCols) {
+              sheet.sheetBlockData[sheetRow][sheetCol].endCellConnection =
+                blockData[r][c + 1];
+            }
           }
         }
       }
@@ -115,7 +115,7 @@ export const getSheetData = ({ blockData, blockSize }) => {
   return sheetData;
 };
 
-const getSheetMetaData = ({
+const createBaseSheetData = ({
   rowsInSheet,
   colsInSheet,
   sheetsAcross,
