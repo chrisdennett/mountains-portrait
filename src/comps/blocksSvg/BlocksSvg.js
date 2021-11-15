@@ -17,16 +17,55 @@ export const BlocksSvg = ({
 
   return (
     <svg width={pixelsWide * blockSize} height={blocksHigh * blockSize}>
-      {paths.map((p, i) => (
-        <path
-          key={i}
-          d={p}
-          fill={fill}
-          // fill={`hsl(${i * hueIncrement}, 100%, 30%)`}
-          stroke={`hsl(${i * hueIncrement}, 100%, 30%)`}
-          // stroke="none"
-        />
-      ))}
+      <defs>
+        <pattern
+          id="diagonalHatch"
+          patternUnits="userSpaceOnUse"
+          width="4"
+          height="4"
+        >
+          <path
+            d="M-1,1 l2,-2
+                            M0,4 l4,-4
+                            M3,5 l2,-2"
+            stroke="black"
+            strokeWidth="1"
+          />
+        </pattern>
+        {/* <pattern
+          id="diagonalHatch"
+          patternUnits="userSpaceOnUse"
+          width="4"
+          height="4"
+        >
+          <path
+            d="M-1,1 l2,-2
+                            M0,4 l4,-4
+                            M3,5 l2,-2"
+            style="stroke:black; stroke-width:1"
+          />
+        </pattern> */}
+        <clipPath id="clipper">
+          {paths.map((p, i) => (
+            <path
+              key={i}
+              d={p}
+              fill={fill}
+              // fill={`hsl(${i * hueIncrement}, 100%, 30%)`}
+              stroke={`hsl(${i * hueIncrement}, 100%, 30%)`}
+              // stroke="none"
+            />
+          ))}
+        </clipPath>
+      </defs>
+      <rect
+        x={10}
+        y={10}
+        width={800}
+        height={950}
+        fill={"url(#diagonalHatch)"}
+        clipPath="url(#clipper)"
+      />
     </svg>
   );
 };
@@ -56,7 +95,7 @@ export const getPaths = ({ blockData, blockSize }) => {
 
       // trace out errors
       if (!cell) {
-        console.log("bad cell: ", cell);
+        console.log("empty cell data: ", cell);
         yPos = yBottom;
       } else {
         yPos = getYPosFromCell({

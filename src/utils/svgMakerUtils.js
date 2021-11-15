@@ -134,7 +134,7 @@ const createBaseSheetData = ({
       const startRow = sr * rowsInSheet;
       const endRow = startRow + rowsInSheet - 1;
       const startCol = sc * colsInSheet;
-      const endCol = startCol + colsInSheet - 1;
+      const endCol = startCol + colsInSheet;
 
       const sheet = {
         startRow,

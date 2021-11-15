@@ -52,12 +52,9 @@ const App = () => {
         onChange={(newParams) => setParams(newParams)}
         onDownloadPack={() => onDownloadPack()}
       />
-
       <CardPdf blockData={blockData} {...params} />
-
       <h4>SVG</h4>
       <BlocksSvg blockData={blockData} {...params} />
-
       <h4>CANVAS</h4>
       <canvas
         ref={canvasRef}
